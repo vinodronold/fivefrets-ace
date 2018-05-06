@@ -48,6 +48,10 @@ def split(yt_id, dur):
         with open('tmp/' + yt_id + "-%s.wav" % i, "wb") as f:
             chunk.export(f, format="wav")
 
+def printTime(args):
+    print(str(datetime.now()))
+    return args
+
 
 def arrange(beatAndChords):
     print('*** ARRANGING ***')
@@ -56,7 +60,7 @@ def arrange(beatAndChords):
     print('beats', beats[:5])
     print('chords', chords[:5])
     # LIST comprehension
-    return [(b, c) for b in beats for (start, end, c) in chords if (b >= start and b < end)]
+    return [{"time": b, "chord": c} for b in beats for (start, end, c) in chords if (b >= start and b < end)]
 
 
 def extract(yt_id):
@@ -67,8 +71,8 @@ def extract(yt_id):
     processMulti = ParallelProcessor([])
     processMulti.append(beats)
     processMulti.append(chordrec)
-    beatSync = SequentialProcessor([processMulti, arrange])
-    return beatSync('tmp/' + yt_id + '-0.wav')
+    beatSync = SequentialProcessor([printTime,processMulti, printTime, arrange, printTime])
+    return beatSync('tmp/' + yt_id + '.wav')
     # return ParallelProcessor([chordrec('tmp/' + yt_id + '-0.wav'),
     #                           chordrec('tmp/' + yt_id + '-1.wav'),
     #                           chordrec('tmp/' + yt_id + '-2.wav'),
