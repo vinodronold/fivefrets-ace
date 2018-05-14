@@ -1,9 +1,39 @@
 from datetime import datetime
 from sys import argv
+import json
+import os
 
 OUT_FILE_PATH = 'tmp/'
+OUT_DUMP_PATH = 'out/'
 OUT_FILE_EXT = 'wav'
 MAX_SONG_DURATION = 480
+#   Ids 0-11 encode major chords starting with root 'A', 12-23 minor chords.
+#   Id 24 represents 'N', the no-chord class.
+CHORD_LBL_ID = {"A:min": 0,
+                "A#:min": 1,
+                "B:min": 2,
+                "C:min": 3,
+                "C#:min": 4,
+                "D:min": 5,
+                "D#:min": 6,
+                "E:min": 7,
+                "F:min": 8,
+                "F#:min": 9,
+                "G:min": 10,
+                "G#:min": 11,
+                "A:maj": 12,
+                "A#:maj": 13,
+                "B:maj": 14,
+                "C:maj": 15,
+                "C#:maj": 16,
+                "D:maj": 17,
+                "D#:maj": 18,
+                "E:maj": 19,
+                "F:maj": 20,
+                "F#:maj": 21,
+                "G:maj": 22,
+                "G#:maj": 23,
+                "N": 24}
 
 
 def download(youtube_id):
@@ -69,7 +99,7 @@ def process_beats_and_chords(youtube_id):
 def sync_beats_and_chords(beats_and_chords):
     print('START SYNCING          >> ', str(datetime.now()))
     return [
-        {'time': b, 'chord': c}
+        {b: CHORD_LBL_ID[c]}
         for b in beats_and_chords[0]
         for (start, end, c) in beats_and_chords[1]
         if (b >= start and b < end)
@@ -99,6 +129,11 @@ if IN_YOUTUBE_ID:
         'title': song_title,
         'chords': beat_synced_chords
     }
+    OUT_FILE = OUT_DUMP_PATH + IN_YOUTUBE_ID + '.json'
+    os.makedirs(os.path.dirname(OUT_FILE), exist_ok=True)
+    with open(OUT_FILE, 'w') as outfile:
+        json.dump(OUT_DATA, outfile)
+
 else:
     raise ValueError('Youtube ID is blank')
 
