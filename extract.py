@@ -98,43 +98,48 @@ def process_beats_and_chords(youtube_id):
 
 def sync_beats_and_chords(beats_and_chords):
     print('START SYNCING          >> ', str(datetime.now()))
-    return [
-        {b: CHORD_LBL_ID[c]}
+    beat_synced = [
+        (b, c)
         for b in beats_and_chords[0]
         for (start, end, c) in beats_and_chords[1]
         if (b >= start and b < end)
     ]
+    out = {}
+    for b, c in beat_synced:
+        out[b] = CHORD_LBL_ID[c]
+    return out
 
 
 ### MAIN ###
 
 try:
-    IN_YOUTUBE_ID = argv[1]
+    IN_YOUTUBE_IDS = argv[1:]
 except Exception as e:
-    print('Provide Youtube ID')
+    print('Provide Youtube IDs')
     raise
 
-if IN_YOUTUBE_ID:
-    print('IN_YOUTUBE_ID          >> ', IN_YOUTUBE_ID)
-    print('STARTING EXTRACT       >> ', str(datetime.now()))
-    song_title = download(IN_YOUTUBE_ID)
-    print('END DOWNLOAD           >> ', str(datetime.now()))
-    print('START BEAT SYNC CHORD  >> ', str(datetime.now()))
-    beat_synced_chords = sync_beats_and_chords(
-        process_beats_and_chords(IN_YOUTUBE_ID))
-    print('END BEAT SYNC CHORD    >> ', str(datetime.now()))
-    print('END EXTRACT            >> ', str(datetime.now()))
-    OUT_DATA = {
-        'youtube_id': IN_YOUTUBE_ID,
-        'title': song_title,
-        'chords': beat_synced_chords
-    }
-    OUT_FILE = OUT_DUMP_PATH + IN_YOUTUBE_ID + '.json'
-    os.makedirs(os.path.dirname(OUT_FILE), exist_ok=True)
-    with open(OUT_FILE, 'w') as outfile:
-        json.dump(OUT_DATA, outfile)
-
+if IN_YOUTUBE_IDS:
+    print('IN_YOUTUBE_IDs         >> ', IN_YOUTUBE_IDS)
+    for YOUTUBE_ID in IN_YOUTUBE_IDS:
+        print('STARTING YOUTUBE_ID    >> ', YOUTUBE_ID)
+        print('STARTING EXTRACT       >> ', str(datetime.now()))
+        song_title = download(YOUTUBE_ID)
+        print('END DOWNLOAD           >> ', str(datetime.now()))
+        print('START BEAT SYNC CHORD  >> ', str(datetime.now()))
+        beat_synced_chords = sync_beats_and_chords(
+            process_beats_and_chords(YOUTUBE_ID))
+        print('END BEAT SYNC CHORD    >> ', str(datetime.now()))
+        print('END EXTRACT            >> ', str(datetime.now()))
+        OUT_DATA = {
+            'youtube_id': YOUTUBE_ID,
+            'title': song_title,
+            'chords': beat_synced_chords
+        }
+        OUT_FILE = OUT_DUMP_PATH + YOUTUBE_ID + '.json'
+        os.makedirs(os.path.dirname(OUT_FILE), exist_ok=True)
+        with open(OUT_FILE, 'w') as outfile:
+            json.dump(OUT_DATA, outfile)
+        # print(OUT_DATA)
+        print('END YOUTUBE_ID         >> ', YOUTUBE_ID)
 else:
     raise ValueError('Youtube ID is blank')
-
-print(OUT_DATA)
