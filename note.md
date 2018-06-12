@@ -12,3 +12,7 @@ USER GET CHORDS
                                                 -> CHORDS RECOGNIZE
                                                 -> STORE IN DB
                                                 -> SEND RESPONSE
+
+
+sonic-annotator -d vamp:nnls-chroma:chordino:simplechord PiL5UTTTrxk.wav -w csv --csv-force --force
+sonic-annotator -d vamp:qm-vamp-plugins:qm-barbeattracker PiL5UTTTrxk.wav -w csv --csv-force --force
